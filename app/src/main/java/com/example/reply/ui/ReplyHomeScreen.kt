@@ -15,6 +15,7 @@
  */
 package com.example.reply.ui
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -109,6 +110,7 @@ fun ReplyHomeScreen(
             modifier = Modifier.testTag(navigationDrawerContentDescription)
         ) {
             ReplyAppContent(
+                navigationType = navigationType,
                 replyUiState = replyUiState,
                 onTabPressed = onTabPressed,
                 onEmailCardPressed = onEmailCardPressed,
@@ -119,6 +121,7 @@ fun ReplyHomeScreen(
     } else {
         if (replyUiState.isShowingHomepage) {
             ReplyAppContent(
+                navigationType = navigationType,
                 replyUiState = replyUiState,
                 onTabPressed = onTabPressed,
                 onEmailCardPressed = onEmailCardPressed,
@@ -136,23 +139,25 @@ fun ReplyHomeScreen(
     }
 }
 
+
 @Composable
 private fun ReplyAppContent(
+    navigationType: ReplyNavigationType,
     replyUiState: ReplyUiState,
     onTabPressed: ((MailboxType) -> Unit),
     onEmailCardPressed: (Email) -> Unit,
     navigationItemContentList: List<NavigationItemContent>,
     modifier: Modifier = Modifier,
 ) {
-    Box(modifier = modifier) {
-        val navigationRailContentDescription = stringResource(R.string.navigation_rail)
-        ReplyNavigationRail(
-            currentTab = replyUiState.currentMailbox,
-            onTabPressed = onTabPressed,
-            navigationItemContentList = navigationItemContentList,
-            modifier = Modifier
-                .testTag(navigationRailContentDescription)
-        )
+    Row(modifier = modifier) {
+        AnimatedVisibility(visible = navigationType == ReplyNavigationType.NAVIGATION_RAIL) {
+            val navigationRailContentDescription = stringResource(R.string.navigation_rail)
+            ReplyNavigationRail(
+                currentTab = replyUiState.currentMailbox,
+                onTabPressed = onTabPressed,
+                navigationItemContentList = navigationItemContentList
+            )
+        }
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -166,7 +171,8 @@ private fun ReplyAppContent(
                         horizontal = dimensionResource(R.dimen.email_list_only_horizontal_padding)
                     )
             )
-            val bottomNavigationContentDescription = stringResource(R.string.navigation_bottom)
+            AnimatedVisibility(visible = navigationType == ReplyNavigationType.BOTTOM_NAVIGATION) {
+                val bottomNavigationContentDescription = stringResource(R.string.navigation_bottom)
             ReplyBottomNavigationBar(
                 currentTab = replyUiState.currentMailbox,
                 onTabPressed = onTabPressed,
@@ -174,7 +180,7 @@ private fun ReplyAppContent(
                 modifier = Modifier
                     .fillMaxWidth()
             )
-        }
+        }}
     }
 }
 
